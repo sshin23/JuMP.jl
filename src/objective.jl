@@ -90,22 +90,26 @@ functions; the recommended way to set the objective is with the
 """
 function set_objective_function end
 
-function set_objective_function(model::Model, func::MOI.AbstractScalarFunction)
-    attr = MOI.ObjectiveFunction{typeof(func)}()
-    if !MOI.supports(backend(model), attr)
-        error(
-            "The solver does not support an objective function of type ",
-            typeof(func),
-            ".",
-        )
+function set_objective_function(
+    model::Model,
+    f::F,
+) where {F<:MOI.AbstractScalarFunction}
+    attr = MOI.ObjectiveFunction{F}()
+    if MOI.supports(backend(model), attr)
+        MOI.set(model, attr, f)
+        # Nonlinear objectives override regular objectives, so if there was a
+        # nonlinear objective set, we must clear it.
+        if model.nlp_data !== nothing
+            model.nlp_data.nlobj = nothing
+        end
+        return
+    else
+        _add_bridges_if_needed(model)
+        return set_objective_function(model, f)
     end
-    MOI.set(model, attr, func)
-    # Nonlinear objectives override regular objectives, so if there was a
-    # nonlinear objective set, we must clear it.
-    if model.nlp_data !== nothing
-        model.nlp_data.nlobj = nothing
-    end
-    return
+    return error(
+        "The solver does not support an objective function of type $F.",
+    )
 end
 
 function set_objective_function(model::Model, func::AbstractJuMPScalar)
