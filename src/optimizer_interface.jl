@@ -76,13 +76,13 @@ end
     set_optimizer(
         model::Model,
         optimizer_factory;
-        bridge_constraints::Bool = false,
+        bridge_formulation::Bool = length(model.bridge_types) > 0,
     )
 
 Creates an empty `MathOptInterface.AbstractOptimizer` instance by calling
 `MOI.instantiate(optimizer_factory)` and sets it as the optimizer of `model`.
 
-If `bridge_constraints`, adds a `MOI.Bridges.LazyBridgeOptimizer` layer around
+If `bridge_formulation`, adds a `MOI.Bridges.LazyBridgeOptimizer` layer around
 the constructed optimizer.
 
 See [`set_optimizer_attributes`](@ref) and [`set_optimizer_attribute`](@ref) for
@@ -95,7 +95,7 @@ model = Model()
 
 set_optimizer(model, GLPK.Optimizer)
 
-set_optimizer(model, () -> Gurobi.Optimizer(); bridge_constraints = true)
+set_optimizer(model, () -> Gurobi.Optimizer(); bridge_formulation = true)
 
 factory = optimizer_with_attributes(Gurobi.Optimizer, "OutputFlag" => 0)
 set_optimizer(model, factory)
@@ -104,12 +104,18 @@ set_optimizer(model, factory)
 function set_optimizer(
     model::Model,
     optimizer_constructor;
-    bridge_constraints::Bool = false,
+    # By default, add bridges only if the user has manually added bridges.
+    bridge_formulation::Bool = length(model.bridge_types) > 0,
+    bridge_constraints::Union{Nothing,Bool} = nothing,
 )
-    error_if_direct_mode(model, :set_optimizer)
-    if length(model.bridge_types) > 0
-        bridge_constraints = true  # If the user added bridges, add them.
+    if bridge_constraints !== nothing
+        @warn(
+            "`bridge_constraints` is deprecated. Use `bridge_formulation` " *
+            "instead.",
+        )
+        bridge_formulation = bridge_constraints
     end
+    error_if_direct_mode(model, :set_optimizer)
     optimizer = if bridge_constraints
         optimizer = MOI.instantiate(
             optimizer_constructor;

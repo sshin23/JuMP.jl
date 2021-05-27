@@ -236,7 +236,7 @@ mutable struct Model <: AbstractModel
 end
 
 """
-    Model(optimizer_factory = nothing; bridge_constraints::Bool = false,)
+    Model(optimizer_factory = nothing; bridge_formulation::Bool = false,)
 
 Construct a JuMP model with a `MOI.Utilities.CachingOptimizer` backend.
 
@@ -270,14 +270,26 @@ model = Model() do
 end
 ```
 
-Pass `bridge_constraints = true` to intialize the model with bridges. Normally,
+Pass `bridge_formulation = true` to intialize the model with bridges. Normally,
 bridges will be added only if necessary. Adding them here can have performance
 benefits if you know that your model will use the bridges.
 ```julia
-model = Model(SCS.Optimizer; bridge_constraints = true)
+model = Model(SCS.Optimizer; bridge_formulation = true)
 ```
 """
-function Model(optimizer_factory = nothing; bridge_constraints::Bool = false)
+function Model(
+    optimizer_factory = nothing;
+    bridge_formulation::Bool = false,
+    bridge_constraints::Union{Nothing,Bool} = nothing
+)
+    if bridge_constraints !== nothing
+        @warn(
+            "`bridge_constraints` is deprecated. Use `bridge_formulation` " *
+            "instead.",
+        )
+        bridge_formulation = bridge_constraints
+    end
+
     model = direct_model(
         MOI.Utilities.CachingOptimizer(
             MOIU.UniversalFallback(MOIU.Model{Float64}()),
@@ -288,7 +300,7 @@ function Model(optimizer_factory = nothing; bridge_constraints::Bool = false)
         set_optimizer(
             model,
             optimizer_factory;
-            bridge_constraints = bridge_constraints,
+            bridge_formulation = bridge_formulation,
         )
     end
     return model
