@@ -692,11 +692,7 @@ function _moi_fix(
                 MOI.delete(moi_backend, _lower_bound_index(variable))
             end
         end
-        moi_add_constraint(
-            model,
-            MOI.SingleVariable(index(variable)),
-            new_set,
-        )
+        moi_add_constraint(model, MOI.SingleVariable(index(variable)), new_set)
     end
     return
 end
@@ -1028,18 +1024,10 @@ function _moi_constrain_variable(
         )
     end
     if info.binary
-        moi_add_constraint(
-            model,
-            MOI.SingleVariable(index),
-            MOI.ZeroOne(),
-        )
+        moi_add_constraint(model, MOI.SingleVariable(index), MOI.ZeroOne())
     end
     if info.integer
-        moi_add_constraint(
-            model,
-            MOI.SingleVariable(index),
-            MOI.Integer(),
-        )
+        moi_add_constraint(model, MOI.SingleVariable(index), MOI.Integer())
     end
     if info.has_start
         MOI.set(
@@ -1101,7 +1089,12 @@ function _moi_add_constrained_variable(
 ) where {S<:MOI.AbstractScalarSet}
     if MOI.supports_add_constrained_variable(moi_backend, S)
         var_index, _ = MOI.add_constrained_variable(moi_backend, set)
-        _moi_constrain_variable(model, moi_backend, var_index, scalar_variable.info)
+        _moi_constrain_variable(
+            model,
+            moi_backend,
+            var_index,
+            scalar_variable.info,
+        )
         if !isempty(name)
             MOI.set(moi_backend, MOI.VariableName(), var_index, name)
         end
