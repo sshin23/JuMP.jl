@@ -103,8 +103,7 @@ function set_objective_function(
             model.nlp_data.nlobj = nothing
         end
         return
-    else
-        _add_bridges_if_needed(model)
+    elseif _add_bridges_if_needed(model)
         return set_objective_function(model, f)
     end
     return error(
@@ -118,20 +117,15 @@ function set_objective_function(model::Model, func::AbstractJuMPScalar)
 end
 
 function set_objective_function(model::Model, func::Real)
-    return set_objective_function(
-        model,
-        MOI.ScalarAffineFunction(
-            MOI.ScalarAffineTerm{Float64}[],
-            Float64(func),
-        ),
-    )
+    f = MOI.ScalarAffineFunction(MOI.ScalarAffineTerm{Float64}[], Float64(func))
+    return set_objective_function(model, f)
 end
 
 function set_objective_function(model::AbstractModel, ::MutableArithmetics.Zero)
     return set_objective_function(model, 0.0)
 end
 
-function set_objective_function(model::AbstractModel, func)
+function set_objective_function(::AbstractModel, func)
     return error("The objective function `$(func)` is not supported by JuMP.")
 end
 

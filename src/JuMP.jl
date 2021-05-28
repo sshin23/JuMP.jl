@@ -280,7 +280,7 @@ model = Model(SCS.Optimizer; bridge_formulation = true)
 function Model(
     optimizer_factory = nothing;
     bridge_formulation::Bool = false,
-    bridge_constraints::Union{Nothing,Bool} = nothing
+    bridge_constraints::Union{Nothing,Bool} = nothing,
 )
     if bridge_constraints !== nothing
         @warn(
@@ -509,8 +509,8 @@ function _add_bridges_if_needed(
     end
     optimizer = backend.optimizer
     if !MOI.Utilities.supports_default_copy_to(backend.optimizer, false)
-        optimizer = Utilities.CachingOptimizer(
-            Utilities.UniversalFallback(Utilities.Model{Float64}()),
+        optimizer = MOI.Utilities.CachingOptimizer(
+            MOI.Utilities.UniversalFallback(MOI.Utilities.Model{Float64}()),
             backend.optimizer,
         )
     end
