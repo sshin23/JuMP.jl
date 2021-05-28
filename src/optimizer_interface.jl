@@ -116,7 +116,7 @@ function set_optimizer(
         bridge_formulation = bridge_constraints
     end
     error_if_direct_mode(model, :set_optimizer)
-    optimizer = if bridge_constraints
+    optimizer = if bridge_formulation
         optimizer = MOI.instantiate(
             optimizer_constructor;
             with_bridge_type = Float64,

@@ -598,8 +598,8 @@ _moi_add_bridge(::Nothing, ::Type{<:MOI.Bridges.AbstractBridge}) = nothing
 
 function _moi_add_bridge(::MOI.ModelLike, ::Type{<:MOI.Bridges.AbstractBridge})
     return error(
-        "`In order to add a bridge, you must pass `bridge_constraints=true` " *
-        "to `Model`, i.e., `Model(optimizer; bridge_constraints = true)`.",
+        "`In order to add a bridge, you must pass `bridge_formulation=true` " *
+        "to `Model`, i.e., `Model(optimizer; bridge_formulation = true)`.",
     )
 end
 
@@ -684,8 +684,8 @@ end
 function _moi_print_bridge_graph(::IO, ::MOI.ModelLike)
     return error(
         "`In order to print the bridge graph, you must pass " *
-        "`bridge_constraints=true` to `Model`, i.e., " *
-        "`Model(optimizer; bridge_constraints = true)`.",
+        "`bridge_formulation=true` to `Model`, i.e., " *
+        "`Model(optimizer; bridge_formulation = true)`.",
     )
 end
 

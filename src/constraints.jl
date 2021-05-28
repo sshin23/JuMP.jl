@@ -561,7 +561,7 @@ function add_constraint(
     check_belongs_to_model(con, model)
     func, set = moi_function(con), moi_set(con)
     cindex = moi_add_constraint(
-        backend(model),
+        model,
         func,
         set,
     )::MOI.ConstraintIndex{typeof(func),typeof(set)}

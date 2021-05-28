@@ -205,7 +205,7 @@ function test_bridges_automatic()
     # optimizer not supporting Interval
     model = Model(
         () -> MOIU.MockOptimizer(SimpleLPModel{Float64}());
-        bridge_constraints = true,
+        bridge_formulation = true,
     )
     @test JuMP.backend(model) isa MOIU.CachingOptimizer
     @test JuMP.backend(model).optimizer isa MOI.Bridges.LazyBridgeOptimizer
@@ -230,7 +230,7 @@ function test_bridges_automatic_with_cache()
             SimpleLPModel{Float64}(),
             needs_allocate_load = true,
         ),
-        bridge_constraints = true,
+        bridge_formulation = true,
     )
     @test JuMP.backend(model) isa MOIU.CachingOptimizer
     @test JuMP.backend(model).optimizer isa MOI.Bridges.LazyBridgeOptimizer
@@ -288,7 +288,7 @@ function mock_factory()
 end
 
 function test_bridges_add_before_con_model_optimizer()
-    model = Model(mock_factory; bridge_constraints = true)
+    model = Model(mock_factory; bridge_formulation = true)
     @variable(model, x)
     JuMP.add_bridge(model, NonnegativeBridge)
     c = @constraint(model, x in Nonnegative())
@@ -303,7 +303,7 @@ function test_bridges_add_before_con_set_optimizer()
     @variable(model, x)
     c = @constraint(model, x in Nonnegative())
     JuMP.add_bridge(model, NonnegativeBridge)
-    set_optimizer(model, mock_factory; bridge_constraints = true)
+    set_optimizer(model, mock_factory)
     JuMP.optimize!(model)
     @test 1.0 == @inferred JuMP.value(x)
     @test 1.0 == @inferred JuMP.value(c)
@@ -311,7 +311,7 @@ function test_bridges_add_before_con_set_optimizer()
 end
 
 function test_bridges_add_after_con_model_optimizer()
-    model = Model(mock_factory; bridge_constraints = true)
+    model = Model(mock_factory)
     @variable(model, x)
     flag = true
     try
@@ -366,7 +366,7 @@ function test_bridges_add_bridgeable_con_set_optimizer()
     constraint = ScalarConstraint(x, Nonnegative())
     bc = BridgeableConstraint(constraint, NonnegativeBridge)
     c = add_constraint(model, bc)
-    set_optimizer(model, mock_factory; bridge_constraints = true)
+    set_optimizer(model, mock_factory; bridge_formulation = true)
     JuMP.optimize!(model)
     @test 1.0 == @inferred JuMP.value(x)
     @test 1.0 == @inferred JuMP.value(c)
@@ -379,8 +379,8 @@ function test_bridge_graph_false()
     @test_throws(
         ErrorException(
             "`In order to print the bridge graph, you must pass " *
-            "`bridge_constraints=true` to `Model`, i.e., " *
-            "`Model(optimizer; bridge_constraints = true)`.",
+            "`bridge_formulation=true` to `Model`, i.e., " *
+            "`Model(optimizer; bridge_formulation = true)`.",
         ),
         print_bridge_graph(model)
     )
