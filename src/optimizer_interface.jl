@@ -116,7 +116,9 @@ function set_optimizer(
         bridge_formulation = bridge_constraints
     end
     error_if_direct_mode(model, :set_optimizer)
-    optimizer = if bridge_formulation
+
+    optimizer = MOI.instantiate(optimizer_constructor)
+    if bridge_formulation
         optimizer = MOI.instantiate(
             optimizer_constructor;
             with_bridge_type = Float64,
@@ -124,9 +126,6 @@ function set_optimizer(
         # Make sure to add the bridges in `model.bridge_types`! These may have
         # been added when no optimizer was present.
         _moi_add_bridge.(Ref(optimizer), model.bridge_types)
-        optimizer
-    else
-        MOI.instantiate(optimizer_constructor)
     end
     model.moi_backend = _CachingOptimizer(backend(model).model_cache, optimizer)
     MOIU.reset_optimizer(model)
@@ -205,6 +204,16 @@ function optimize!(
                 "The solver does not support nonlinear problems " *
                 "(i.e., NLobjective and NLconstraint).",
             )
+        elseif err isa MOI.UnsupportedConstraint
+            if _add_bridges_if_needed(model)
+                optimize!(
+                    model;
+                    ignore_optimize_hook = ignore_optimize_hook,
+                    kwargs...,
+                )
+            else
+                rethrow(err)
+            end
         else
             rethrow(err)
         end
