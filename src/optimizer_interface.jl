@@ -119,10 +119,8 @@ function set_optimizer(
 
     optimizer = MOI.instantiate(optimizer_constructor)
     if bridge_formulation
-        optimizer = MOI.instantiate(
-            optimizer_constructor;
-            with_bridge_type = Float64,
-        )
+        optimizer =
+            MOI.instantiate(optimizer_constructor; with_bridge_type = Float64)
         # Make sure to add the bridges in `model.bridge_types`! These may have
         # been added when no optimizer was present.
         _moi_add_bridge.(Ref(optimizer), model.bridge_types)
