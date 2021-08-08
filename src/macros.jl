@@ -1413,6 +1413,7 @@ function build_variable(
         "the same dimension. ",
     )
 end
+
 function build_variable(
     _error::Function,
     variables::Vector{<:AbstractVariable},
