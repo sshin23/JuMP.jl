@@ -1392,6 +1392,7 @@ function build_variable(
     end
     return VariableConstrainedOnCreation.(variables, sets)
 end
+
 function build_variable(
     _error::Function,
     variables::Vector{<:ScalarVariable},
