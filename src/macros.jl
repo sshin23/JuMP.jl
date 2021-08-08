@@ -1394,7 +1394,7 @@ function build_variable(
 end
 
 function build_variable(
-    _error::Function,
+   ::Function,
     variables::Vector{<:ScalarVariable},
     set::MOI.AbstractScalarSet,
 )
