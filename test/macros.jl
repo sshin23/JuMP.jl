@@ -937,10 +937,14 @@ end
     @test upper_bound(v[2]) == 3.0
     @test has_lower_bound(v[2]) == false
 
-    @test_throws ErrorException @variable(model,
-        k in MOI.GreaterThan.([3.0, 2.0]))
-    @test_throws ErrorException @variable(model,
-        u[1:3] in MOI.GreaterThan.([3.0, 2.0]))
+    @test_throws ErrorException @variable(
+        model,
+        k in MOI.GreaterThan.([3.0, 2.0])
+    )
+    @test_throws ErrorException @variable(
+        model,
+        u[1:3] in MOI.GreaterThan.([3.0, 2.0])
+    )
     @test num_variables(model) == 6
 end
 
