@@ -1400,6 +1400,7 @@ function build_variable(
 )
     return VariableConstrainedOnCreation.(variables, Ref(set))
 end
+
 function build_variable(
     _error::Function,
     variables::ScalarVariable,
