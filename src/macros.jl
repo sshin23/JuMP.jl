@@ -1381,8 +1381,8 @@ end
 
 function build_variable(
     _error::Function,
-    variables::Vector{<:ScalarVariable},
-    sets::Vector{<:MOI.AbstractScalarSet},
+    variables::AbstractArray{<:ScalarVariable},
+    sets::AbstractArray{<:MOI.AbstractScalarSet},
 )
     if length(variables) != length(sets)
         return _error(
@@ -1396,7 +1396,7 @@ end
 
 function build_variable(
     ::Function,
-    variables::Vector{<:ScalarVariable},
+    variables::AbstractArray{<:ScalarVariable},
     set::MOI.AbstractScalarSet,
 )
     return VariableConstrainedOnCreation.(variables, Ref(set))
