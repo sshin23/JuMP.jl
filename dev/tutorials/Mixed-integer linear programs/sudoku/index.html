@@ -9,7 +9,7 @@ Feasibility problem with:
 Variables: 0
 Model mode: AUTOMATIC
 CachingOptimizer state: EMPTY_OPTIMIZER
-Solver name: GLPK</code></pre><p>Create our variables</p><pre><code class="language-julia hljs">@variable(sudoku, x[i=1:9, j=1:9, k=1:9], Bin)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">9×9×9 Array{VariableRef,3}:
+Solver name: GLPK</code></pre><p>Create our variables</p><pre><code class="language-julia hljs">@variable(sudoku, x[i = 1:9, j = 1:9, k = 1:9], Bin)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">9×9×9 Array{VariableRef,3}:
 [:, :, 1] =
  x[1,1,1]  x[1,2,1]  x[1,3,1]  x[1,4,1]  x[1,5,1]  x[1,6,1]  x[1,7,1]  x[1,8,1]  x[1,9,1]
  x[2,1,1]  x[2,2,1]  x[2,3,1]  x[2,4,1]  x[2,5,1]  x[2,6,1]  x[2,7,1]  x[2,8,1]  x[2,9,1]
@@ -107,22 +107,22 @@ Solver name: GLPK</code></pre><p>Create our variables</p><pre><code class="langu
  x[6,1,9]  x[6,2,9]  x[6,3,9]  x[6,4,9]  x[6,5,9]  x[6,6,9]  x[6,7,9]  x[6,8,9]  x[6,9,9]
  x[7,1,9]  x[7,2,9]  x[7,3,9]  x[7,4,9]  x[7,5,9]  x[7,6,9]  x[7,7,9]  x[7,8,9]  x[7,9,9]
  x[8,1,9]  x[8,2,9]  x[8,3,9]  x[8,4,9]  x[8,5,9]  x[8,6,9]  x[8,7,9]  x[8,8,9]  x[8,9,9]
- x[9,1,9]  x[9,2,9]  x[9,3,9]  x[9,4,9]  x[9,5,9]  x[9,6,9]  x[9,7,9]  x[9,8,9]  x[9,9,9]</code></pre><p>Now we can begin to add our constraints. We&#39;ll actually start with something obvious to us as humans, but what we need to enforce: that there can be only one number per cell.</p><pre><code class="language-julia hljs">for i = 1:9  ## For each row
-    for j = 1:9  ## and each column
+ x[9,1,9]  x[9,2,9]  x[9,3,9]  x[9,4,9]  x[9,5,9]  x[9,6,9]  x[9,7,9]  x[9,8,9]  x[9,9,9]</code></pre><p>Now we can begin to add our constraints. We&#39;ll actually start with something obvious to us as humans, but what we need to enforce: that there can be only one number per cell.</p><pre><code class="language-julia hljs">for i in 1:9  ## For each row
+    for j in 1:9  ## and each column
         # Sum across all the possible digits. One and only one of the digits
         # can be in this cell, so the sum must be equal to one.
-        @constraint(sudoku, sum(x[i, j, k] for k = 1:9) == 1)
+        @constraint(sudoku, sum(x[i, j, k] for k in 1:9) == 1)
     end
-end</code></pre><p>Next we&#39;ll add the constraints for the rows and the columns. These constraints are all very similar, so much so that we can actually add them at the same time.</p><pre><code class="language-julia hljs">for ind = 1:9  ## Each row, OR each column
-    for k = 1:9  ## Each digit
+end</code></pre><p>Next we&#39;ll add the constraints for the rows and the columns. These constraints are all very similar, so much so that we can actually add them at the same time.</p><pre><code class="language-julia hljs">for ind in 1:9  ## Each row, OR each column
+    for k in 1:9  ## Each digit
         # Sum across columns (j) - row constraint
-        @constraint(sudoku, sum(x[ind, j, k] for j = 1:9) == 1)
+        @constraint(sudoku, sum(x[ind, j, k] for j in 1:9) == 1)
         # Sum across rows (i) - column constraint
-        @constraint(sudoku, sum(x[i, ind, k] for i = 1:9) == 1)
+        @constraint(sudoku, sum(x[i, ind, k] for i in 1:9) == 1)
     end
-end</code></pre><p>Finally, we have the to enforce the constraint that each digit appears once in each of the nine 3x3 sub-grids. Our strategy will be to index over the top-left corners of each 3x3 square with <code>for</code> loops, then sum over the squares.</p><pre><code class="language-julia hljs">for i = 1:3:7
-    for j = 1:3:7
-        for k = 1:9
+end</code></pre><p>Finally, we have the to enforce the constraint that each digit appears once in each of the nine 3x3 sub-grids. Our strategy will be to index over the top-left corners of each 3x3 square with <code>for</code> loops, then sum over the squares.</p><pre><code class="language-julia hljs">for i in 1:3:7
+    for j in 1:3:7
+        for k in 1:9
             # i is the top left row, j is the top left column.
             # We&#39;ll sum from i to i+2, e.g. i=4, r=4, 5, 6.
             @constraint(
@@ -142,8 +142,8 @@ end</code></pre><p>The final step is to add the initial solution as a set of con
     0 0 0 4 1 9 0 0 5
     0 0 0 0 8 0 0 7 9
 ]
-for i = 1:9
-    for j = 1:9
+for i in 1:9
+    for j in 1:9
         # If the space isn&#39;t empty
         if init_sol[i, j] != 0
             # Then the corresponding variable for that digit and location must
@@ -250,9 +250,9 @@ end</code></pre><p>solve problem</p><pre><code class="language-julia hljs">optim
  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0
  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0</code></pre><p>Create a matrix to store the solution</p><pre><code class="language-julia hljs">sol = zeros(Int, 9, 9)  # 9x9 matrix of integers
-for i = 1:9
-    for j = 1:9
-        for k = 1:9
+for i in 1:9
+    for j in 1:9
+        for k in 1:9
             # Integer programs are solved as a series of linear programs so the
             # values might not be precisely 0 and 1. We can just round them to
             # the nearest integer to make it easier.
@@ -270,4 +270,4 @@ end</code></pre><p>Display the solution</p><pre><code class="language-julia hljs
  7  1  3  9  2  4  8  5  6
  9  6  1  5  3  7  2  8  4
  2  8  7  4  1  9  6  3  5
- 3  4  5  2  8  6  1  7  9</code></pre><p>Which is the correct solution:</p><p><img src="../../../assets/full_sudoku.svg" alt="Solved Sudoku"/></p><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Mixed-integer linear programs/sudoku.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../steelT3/">« The SteelT3 problem</a><a class="docs-footer-nextpage" href="../tips_and_tricks/">Tips and tricks »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 05:08">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ 3  4  5  2  8  6  1  7  9</code></pre><p>Which is the correct solution:</p><p><img src="../../../assets/full_sudoku.svg" alt="Solved Sudoku"/></p><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Mixed-integer linear programs/sudoku.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../steelT3/">« The SteelT3 problem</a><a class="docs-footer-nextpage" href="../tips_and_tricks/">Tips and tricks »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 06:52">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

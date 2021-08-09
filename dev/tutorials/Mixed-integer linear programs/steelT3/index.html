@@ -12,7 +12,7 @@ function example_steelT3(; verbose = true)
     prod = [&quot;bands&quot;, &quot;coils&quot;]
     area = Dict(
         &quot;bands&quot; =&gt; (&quot;east&quot;, &quot;north&quot;),
-        &quot;coils&quot; =&gt; (&quot;east&quot;, &quot;west&quot;, &quot;export&quot;)
+        &quot;coils&quot; =&gt; (&quot;east&quot;, &quot;west&quot;, &quot;export&quot;),
     )
     avail = [40, 40, 32, 40]
     rate = Dict(&quot;bands&quot; =&gt; 200, &quot;coils&quot; =&gt; 140)
@@ -25,10 +25,10 @@ function example_steelT3(; verbose = true)
             &quot;north&quot; =&gt; [26.5, 27.5, 28.0, 28.5],
         ),
         &quot;coils&quot; =&gt; Dict(
-            &quot;east&quot; =&gt;[30, 35, 37, 39],
+            &quot;east&quot; =&gt; [30, 35, 37, 39],
             &quot;west&quot; =&gt; [29, 32, 33, 35],
             &quot;export&quot; =&gt; [25, 25, 25, 28],
-        )
+        ),
     )
     market = Dict(
         &quot;bands&quot; =&gt; Dict(
@@ -39,37 +39,43 @@ function example_steelT3(; verbose = true)
             &quot;east&quot; =&gt; [1000, 800, 1000, 1100],
             &quot;west&quot; =&gt; [2000, 1200, 2000, 2300],
             &quot;export&quot; =&gt; [1000, 500, 500, 800],
-        )
+        ),
     )
     # Model
     model = Model(GLPK.Optimizer)
     # Decision Variables
-    @variables(model, begin
-        make[p in prod, t in 1:T] &gt;= 0
-        inventory[p in prod, t in 0:T] &gt;= 0
-        0 &lt;= sell[p in prod, a in area[p], t in 1:T] &lt;= market[p][a][t]
-    end)
-    @constraints(model, begin
-        [p = prod, a = area[p], t = 1:T], sell[p, a, t] &lt;= market[p][a][t]
-        # Total of hours used by all products may not exceed hours available,
-        # in each week
-        [t in 1:T], sum(1 / rate[p] * make[p, t] for p in prod) &lt;= avail[t]
-        # Initial inventory must equal given value
-        [p in prod], inventory[p, 0] == inv0[p]
-        # Tons produced and taken from inventory must equal tons sold and put
-        # into inventory.
-        [p in prod, t in 1:T], make[p, t] + inventory[p, t - 1] == sum(sell[p, a, t] for a in area[p]) + inventory[p, t]
-    end)
+    @variables(
+        model,
+        begin
+            make[p in prod, t in 1:T] &gt;= 0
+            inventory[p in prod, t in 0:T] &gt;= 0
+            0 &lt;= sell[p in prod, a in area[p], t in 1:T] &lt;= market[p][a][t]
+        end
+    )
+    @constraints(
+        model,
+        begin
+            [p = prod, a = area[p], t = 1:T], sell[p, a, t] &lt;= market[p][a][t]
+            # Total of hours used by all products may not exceed hours available,
+            # in each week
+            [t in 1:T], sum(1 / rate[p] * make[p, t] for p in prod) &lt;= avail[t]
+            # Initial inventory must equal given value
+            [p in prod], inventory[p, 0] == inv0[p]
+            # Tons produced and taken from inventory must equal tons sold and put
+            # into inventory.
+            [p in prod, t in 1:T],
+            make[p, t] + inventory[p, t-1] ==
+            sum(sell[p, a, t] for a in area[p]) + inventory[p, t]
+        end
+    )
     # Maximize total profit: total revenue less costs for all products in all
     # weeks.
     @objective(
         model,
         Max,
         sum(
-            revenue[p][a][t] * sell[p, a, t] -
-            prodcost[p] * make[p, t] -
-            invcost[p] * inventory[p, t]
-            for p in prod, a in area[p], t in 1:T
+            revenue[p][a][t] * sell[p, a, t] - prodcost[p] * make[p, t] -
+            invcost[p] * inventory[p, t] for p in prod, a in area[p], t in 1:T
         )
     )
     optimize!(model)
@@ -91,10 +97,10 @@ function example_steelT3(; verbose = true)
             println()
             for a in area[p]
                 println(&quot;sell $(p) $(a)&quot;)
-            for t in 1:T
-                print(value(sell[p, a, t]), &quot;\t&quot;)
-            end
-            println()
+                for t in 1:T
+                    print(value(sell[p, a, t]), &quot;\t&quot;)
+                end
+                println()
             end
         end
     end
@@ -119,4 +125,4 @@ sell coils east
 sell coils west
 0.0	0.0	0.0	0.0
 sell coils export
-0.0	0.0	0.0	0.0</code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Mixed-integer linear programs/steelT3.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../prod/">« The workforce scheduling problem</a><a class="docs-footer-nextpage" href="../sudoku/">Sudoku »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 05:08">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+0.0	0.0	0.0	0.0</code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Mixed-integer linear programs/steelT3.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../prod/">« The workforce scheduling problem</a><a class="docs-footer-nextpage" href="../sudoku/">Sudoku »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 06:52">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

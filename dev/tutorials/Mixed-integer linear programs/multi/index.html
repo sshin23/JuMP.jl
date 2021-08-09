@@ -16,36 +16,41 @@ function example_multi(; verbose = true)
     numprod = length(prod)
     # supply(prod, orig) amounts available at origins
     supply = [
-        400    700    800;
-        800   1600   1800;
-        200    300    300
+        400 700 800
+        800 1600 1800
+        200 300 300
     ]
     # demand(prod, dest) amounts required at destinations
     demand = [
-        300   300   100    75   650   225   250;
-        500   750   400   250   950   850   500;
-        100   100     0    50   200   100   250
+        300 300 100 75 650 225 250
+        500 750 400 250 950 850 500
+        100 100 0 50 200 100 250
     ]
     # limit(orig, dest) of total units from any origin to destination
     limit = [625.0 for j in 1:numorig, i in 1:numdest]
     # cost(dest, orig, prod) Shipment cost per unit
-    cost = reshape([
+    cost = reshape(
         [
-            [  30,   10,    8,   10,   11,   71,    6];
-            [  22,    7,   10,    7,   21,   82,   13];
-            [  19,   11,   12,   10,   25,   83,   15]
-        ];
-        [
-            [  39,   14,   11,   14,   16,   82,    8];
-            [  27,    9,   12,    9,   26,   95,   17];
-            [  24,   14,   17,   13,   28,   99,   20]
-        ];
-        [
-            [  41,   15,   12,   16,   17,   86,    8];
-            [  29,    9,   13,    9,   28,   99,   18];
-            [  26,   14,   17,   13,   31,  104,   20]
-        ]
-    ], 7, 3, 3)
+            [
+                [30, 10, 8, 10, 11, 71, 6]
+                [22, 7, 10, 7, 21, 82, 13]
+                [19, 11, 12, 10, 25, 83, 15]
+            ]
+            [
+                [39, 14, 11, 14, 16, 82, 8]
+                [27, 9, 12, 9, 26, 95, 17]
+                [24, 14, 17, 13, 28, 99, 20]
+            ]
+            [
+                [41, 15, 12, 16, 17, 86, 8]
+                [29, 9, 13, 9, 28, 99, 18]
+                [26, 14, 17, 13, 31, 104, 20]
+            ]
+        ],
+        7,
+        3,
+        3,
+    )
     # DECLARE MODEL
     multi = Model(GLPK.Optimizer)
     # VARIABLES
@@ -55,8 +60,8 @@ function example_multi(; verbose = true)
         multi,
         Max,
         sum(
-            cost[j, i, p] * trans[i, j, p]
-            for i in 1:numorig, j in 1:numdest, p in 1:numprod
+            cost[j, i, p] * trans[i, j, p] for i in 1:numorig, j in 1:numdest,
+            p in 1:numprod
         )
     )
     # CONSTRAINTS
@@ -87,7 +92,9 @@ function example_multi(; verbose = true)
         for i in 1:length(orig)
             for j in 1:length(dest)
                 for p in 1:length(prod)
-                    print(&quot; $(prod[p]) $(orig[i]) $(dest[j]) = $(value(trans[i, j, p]))\t&quot;)
+                    print(
+                        &quot; $(prod[p]) $(orig[i]) $(dest[j]) = $(value(trans[i, j, p]))\t&quot;,
+                    )
                 end
                 println()
             end
@@ -95,7 +102,6 @@ function example_multi(; verbose = true)
     end
     return
 end
-
 
 example_multi()</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">RESULTS:
  bands GARY FRA = 25.0	 coils GARY FRA = 500.0	 plate GARY FRA = 100.0
@@ -118,4 +124,4 @@ example_multi()</code></pre><pre class="documenter-example-output"><code class="
  bands PITT WIN = 75.0	 coils PITT WIN = 175.0	 plate PITT WIN = 0.0
  bands PITT STL = 400.0	 coils PITT STL = 25.0	 plate PITT STL = 200.0
  bands PITT FRE = 0.0	 coils PITT FRE = 525.0	 plate PITT FRE = 100.0
- bands PITT LAF = 250.0	 coils PITT LAF = 125.0	 plate PITT LAF = 0.0</code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Mixed-integer linear programs/multi.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../knapsack/">« The knapsack problem</a><a class="docs-footer-nextpage" href="../n-queens/">N-Queens »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 05:08">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ bands PITT LAF = 250.0	 coils PITT LAF = 125.0	 plate PITT LAF = 0.0</code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Mixed-integer linear programs/multi.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../knapsack/">« The knapsack problem</a><a class="docs-footer-nextpage" href="../n-queens/">N-Queens »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 06:52">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

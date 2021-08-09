@@ -15,25 +15,28 @@ function example_min_distortion()
     model = Model(SCS.Optimizer)
     set_silent(model)
     D = [
-        0.0 1.0 1.0 1.0;
-        1.0 0.0 2.0 2.0;
-        1.0 2.0 0.0 2.0;
+        0.0 1.0 1.0 1.0
+        1.0 0.0 2.0 2.0
+        1.0 2.0 0.0 2.0
         1.0 2.0 2.0 0.0
     ]
     @variable(model, c² &gt;= 1.0)
     @variable(model, Q[1:4, 1:4], PSD)
     for i in 1:4
-        for j in (i + 1):4
+        for j in (i+1):4
             @constraint(model, D[i, j]^2 &lt;= Q[i, i] + Q[j, j] - 2 * Q[i, j])
-            @constraint(model, Q[i, i] + Q[j, j] - 2 * Q[i, j] &lt;= c² * D[i, j]^2)
+            @constraint(
+                model,
+                Q[i, i] + Q[j, j] - 2 * Q[i, j] &lt;= c² * D[i, j]^2
+            )
         end
     end
     @objective(model, Min, c²)
     optimize!(model)
     Test.@test termination_status(model) == MOI.OPTIMAL
     Test.@test primal_status(model) == MOI.FEASIBLE_POINT
-    Test.@test objective_value(model) ≈ 4/3 atol = 1e-4
+    Test.@test objective_value(model) ≈ 4 / 3 atol = 1e-4
     return
 end
 
-example_min_distortion()</code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Semidefinite programs/min_distortion.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../max_cut_sdp/">« SDP relaxations: max-cut</a><a class="docs-footer-nextpage" href="../min_ellipse/">Minimum ellipses »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 05:08">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+example_min_distortion()</code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Semidefinite programs/min_distortion.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../max_cut_sdp/">« SDP relaxations: max-cut</a><a class="docs-footer-nextpage" href="../min_ellipse/">Minimum ellipses »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 06:52">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

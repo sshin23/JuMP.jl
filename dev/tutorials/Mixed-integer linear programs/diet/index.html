@@ -21,51 +21,70 @@ end
 function example_diet(; verbose = true)
     # Nutrition guidelines
     categories = [&quot;calories&quot;, &quot;protein&quot;, &quot;fat&quot;, &quot;sodium&quot;]
-    category_data = Containers.DenseAxisArray([
-        1800 2200;
-        91   Inf;
-        0    65;
-        0    1779
-        ], categories, [&quot;min&quot;, &quot;max&quot;]
+    category_data = Containers.DenseAxisArray(
+        [
+            1800 2200
+            91 Inf
+            0 65
+            0 1779
+        ],
+        categories,
+        [&quot;min&quot;, &quot;max&quot;],
     )
     Test.@test category_data[&quot;protein&quot;, &quot;min&quot;] == 91.0
     Test.@test category_data[&quot;sodium&quot;, &quot;max&quot;] == 1779.0
     # Foods
     foods = [
-        &quot;hamburger&quot;, &quot;chicken&quot;, &quot;hot dog&quot;, &quot;fries&quot;, &quot;macaroni&quot;, &quot;pizza&quot;,
-        &quot;salad&quot;, &quot;milk&quot;, &quot;ice cream&quot;,
+        &quot;hamburger&quot;,
+        &quot;chicken&quot;,
+        &quot;hot dog&quot;,
+        &quot;fries&quot;,
+        &quot;macaroni&quot;,
+        &quot;pizza&quot;,
+        &quot;salad&quot;,
+        &quot;milk&quot;,
+        &quot;ice cream&quot;,
     ]
     cost = Containers.DenseAxisArray(
         [2.49, 2.89, 1.50, 1.89, 2.09, 1.99, 2.49, 0.89, 1.59],
-        foods
+        foods,
     )
     food_data = Containers.DenseAxisArray(
         [
-            410 24 26 730;
-            420 32 10 1190;
-            560 20 32 1800;
-            380  4 19 270;
-            320 12 10 930;
-            320 15 12 820;
-            320 31 12 1230;
-            100  8 2.5 125;
-            330  8 10 180
-        ], foods, categories
+            410 24 26 730
+            420 32 10 1190
+            560 20 32 1800
+            380 4 19 270
+            320 12 10 930
+            320 15 12 820
+            320 31 12 1230
+            100 8 2.5 125
+            330 8 10 180
+        ],
+        foods,
+        categories,
     )
     Test.@test food_data[&quot;hamburger&quot;, &quot;calories&quot;] == 410.0
     Test.@test food_data[&quot;milk&quot;, &quot;fat&quot;] == 2.5
     # Build model
     model = Model(GLPK.Optimizer)
-    @variables(model, begin
-        # Variables for nutrition info
-        category_data[c, &quot;min&quot;] &lt;= nutrition[c = categories] &lt;= category_data[c, &quot;max&quot;]
-        # Variables for which foods to buy
-        buy[foods] &gt;= 0
-    end)
+    @variables(
+        model,
+        begin
+            # Variables for nutrition info
+            category_data[c, &quot;min&quot;] &lt;=
+            nutrition[c = categories] &lt;=
+            category_data[c, &quot;max&quot;]
+            # Variables for which foods to buy
+            buy[foods] &gt;= 0
+        end
+    )
     # Objective - minimize cost
     @objective(model, Min, sum(cost[f] * buy[f] for f in foods))
     # Nutrition constraints
-    @constraint(model, [c in categories],
+    @constraint(
+        model,
+        [c in categories],
         sum(food_data[f, c] * buy[f] for f in foods) == nutrition[c]
     )
     # Solve
@@ -107,4 +126,4 @@ RESULTS:
   ice cream = 2.591319444444441
 Solving dairy-limited problem...
 RESULTS:
-The solver did not find an optimal solution.</code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Mixed-integer linear programs/diet.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../cutting_stock_column_generation/">« Cutting stock</a><a class="docs-footer-nextpage" href="../facility_location/">Facility Location »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 05:08">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+The solver did not find an optimal solution.</code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Mixed-integer linear programs/diet.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../cutting_stock_column_generation/">« Cutting stock</a><a class="docs-footer-nextpage" href="../facility_location/">Facility Location »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 06:52">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

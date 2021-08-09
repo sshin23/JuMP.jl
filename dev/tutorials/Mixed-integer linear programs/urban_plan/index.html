@@ -17,19 +17,22 @@ function example_urban_plan()
     points = [5, 4, 3, -3, -4, -5]
     @variable(model, 0 &lt;= y[rowcol, points, 1:5] &lt;= 1, Int)
     # Objective - combine the positive and negative parts
-    @objective(model, Max, sum(
-          3 * (y[&quot;R&quot;, 3, i] + y[&quot;C&quot;, 3, i])
-        + 1 * (y[&quot;R&quot;, 4, i] + y[&quot;C&quot;, 4, i])
-        + 1 * (y[&quot;R&quot;, 5, i] + y[&quot;C&quot;, 5, i])
-        - 3 * (y[&quot;R&quot;, -3, i] + y[&quot;C&quot;, -3, i])
-        - 1 * (y[&quot;R&quot;, -4, i] + y[&quot;C&quot;, -4, i])
-        - 1 * (y[&quot;R&quot;, -5, i] + y[&quot;C&quot;, -5, i])
-        for i in 1:5)
+    @objective(
+        model,
+        Max,
+        sum(
+            3 * (y[&quot;R&quot;, 3, i] + y[&quot;C&quot;, 3, i]) +
+            1 * (y[&quot;R&quot;, 4, i] + y[&quot;C&quot;, 4, i]) +
+            1 * (y[&quot;R&quot;, 5, i] + y[&quot;C&quot;, 5, i]) -
+            3 * (y[&quot;R&quot;, -3, i] + y[&quot;C&quot;, -3, i]) -
+            1 * (y[&quot;R&quot;, -4, i] + y[&quot;C&quot;, -4, i]) -
+            1 * (y[&quot;R&quot;, -5, i] + y[&quot;C&quot;, -5, i]) for i in 1:5
+        )
     )
     # Constrain the number of residential lots
     @constraint(model, sum(x) == 12)
     # Add the constraints that link the auxiliary y variables to the x variables
-    for i = 1:5
+    for i in 1:5
         @constraints(model, begin
             # Rows
             y[&quot;R&quot;, 5, i] &lt;= 1 / 5 * sum(x[i, :]) # sum = 5
@@ -55,4 +58,4 @@ function example_urban_plan()
     return
 end
 
-example_urban_plan()</code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Mixed-integer linear programs/urban_plan.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../transp/">« The transportation problem</a><a class="docs-footer-nextpage" href="../../Nonlinear programs/clnlbeam/">The clnlbeam problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 05:08">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+example_urban_plan()</code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Mixed-integer linear programs/urban_plan.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../transp/">« The transportation problem</a><a class="docs-footer-nextpage" href="../../Nonlinear programs/clnlbeam/">The clnlbeam problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 06:52">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

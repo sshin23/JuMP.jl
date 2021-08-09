@@ -8,38 +8,41 @@ import GLPK
 import Test
 
 function example_transp()
-	ORIG = [&quot;GARY&quot;, &quot;CLEV&quot;, &quot;PITT&quot;]
-	DEST = [&quot;FRA&quot;, &quot;DET&quot;, &quot;LAN&quot;, &quot;WIN&quot;, &quot;STL&quot;, &quot;FRE&quot;, &quot;LAF&quot;]
-	supply = [1_400, 2_600, 2_900]
-	demand = [900, 1_200, 600, 400, 1_700, 1_100, 1_000]
-	Test.@test sum(supply) == sum(demand)
-	cost = [
-		39   14   11   14   16   82    8;
-		27    9   12    9   26   95   17;
-		24   14   17   13   28   99   20
-	]
-	model = Model(GLPK.Optimizer)
-	@variable(model, trans[1:length(ORIG), 1:length(DEST)] &gt;= 0)
-	@objective(
-		model,
-		Min,
-		sum(
-			cost[i, j] * trans[i, j]
-			for i in 1:length(ORIG), j in 1:length(DEST)
-		)
-	)
-	@constraints(model, begin
-		[i in 1:length(ORIG)], sum(trans[i, :]) == supply[i]
-		[j in 1:length(DEST)], sum(trans[:, j]) == demand[j]
-	end)
-	optimize!(model)
-	Test.@test termination_status(model) == MOI.OPTIMAL
-	Test.@test primal_status(model) == MOI.FEASIBLE_POINT
-	Test.@test objective_value(model) == 196200.0
-	println(&quot;The optimal solution is:&quot;)
-	println(value.(trans))
-	return
+    ORIG = [&quot;GARY&quot;, &quot;CLEV&quot;, &quot;PITT&quot;]
+    DEST = [&quot;FRA&quot;, &quot;DET&quot;, &quot;LAN&quot;, &quot;WIN&quot;, &quot;STL&quot;, &quot;FRE&quot;, &quot;LAF&quot;]
+    supply = [1_400, 2_600, 2_900]
+    demand = [900, 1_200, 600, 400, 1_700, 1_100, 1_000]
+    Test.@test sum(supply) == sum(demand)
+    cost = [
+        39 14 11 14 16 82 8
+        27 9 12 9 26 95 17
+        24 14 17 13 28 99 20
+    ]
+    model = Model(GLPK.Optimizer)
+    @variable(model, trans[1:length(ORIG), 1:length(DEST)] &gt;= 0)
+    @objective(
+        model,
+        Min,
+        sum(
+            cost[i, j] * trans[i, j] for i in 1:length(ORIG),
+            j in 1:length(DEST)
+        )
+    )
+    @constraints(
+        model,
+        begin
+            [i in 1:length(ORIG)], sum(trans[i, :]) == supply[i]
+            [j in 1:length(DEST)], sum(trans[:, j]) == demand[j]
+        end
+    )
+    optimize!(model)
+    Test.@test termination_status(model) == MOI.OPTIMAL
+    Test.@test primal_status(model) == MOI.FEASIBLE_POINT
+    Test.@test objective_value(model) == 196200.0
+    println(&quot;The optimal solution is:&quot;)
+    println(value.(trans))
+    return
 end
 
 example_transp()</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">The optimal solution is:
-[0.0 0.0 0.0 0.0 300.0 1100.0 0.0; 0.0 1200.0 600.0 400.0 0.0 0.0 400.0; 900.0 0.0 0.0 0.0 1400.0 0.0 600.0]</code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Mixed-integer linear programs/transp.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tips_and_tricks/">« Tips and tricks</a><a class="docs-footer-nextpage" href="../urban_plan/">The urban planning problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 05:08">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+[0.0 0.0 0.0 0.0 300.0 1100.0 0.0; 0.0 1200.0 600.0 400.0 0.0 0.0 400.0; 900.0 0.0 0.0 0.0 1400.0 0.0 600.0]</code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Mixed-integer linear programs/transp.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tips_and_tricks/">« Tips and tricks</a><a class="docs-footer-nextpage" href="../urban_plan/">The urban planning problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 06:52">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

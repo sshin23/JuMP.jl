@@ -11,19 +11,19 @@ import Statistics</code></pre><p>Suppose we are considering investing 1000 dolla
 \overline{r}^{T} x \geq 50.00 \\
 x \geq 0
 \end{aligned}\]</p><p>After that long discussion, lets now use JuMP to solve the portfolio optimization problem for the data given below.</p><table><tr><th style="text-align: right">Month</th><th style="text-align: right">IBM</th><th style="text-align: right">WMT</th><th style="text-align: right">SEHI</th></tr><tr><td style="text-align: right">November-00</td><td style="text-align: right">93.043</td><td style="text-align: right">51.826</td><td style="text-align: right">1.063</td></tr><tr><td style="text-align: right">December-00</td><td style="text-align: right">84.585</td><td style="text-align: right">52.823</td><td style="text-align: right">0.938</td></tr><tr><td style="text-align: right">January-01</td><td style="text-align: right">111.453</td><td style="text-align: right">56.477</td><td style="text-align: right">1.000</td></tr><tr><td style="text-align: right">February-01</td><td style="text-align: right">99.525</td><td style="text-align: right">49.805</td><td style="text-align: right">0.938</td></tr><tr><td style="text-align: right">March-01</td><td style="text-align: right">95.819</td><td style="text-align: right">50.287</td><td style="text-align: right">1.438</td></tr><tr><td style="text-align: right">April-01</td><td style="text-align: right">114.708</td><td style="text-align: right">51.521</td><td style="text-align: right">1.700</td></tr><tr><td style="text-align: right">May-01</td><td style="text-align: right">111.515</td><td style="text-align: right">51.531</td><td style="text-align: right">2.540</td></tr><tr><td style="text-align: right">June-01</td><td style="text-align: right">113.211</td><td style="text-align: right">48.664</td><td style="text-align: right">2.390</td></tr><tr><td style="text-align: right">July-01</td><td style="text-align: right">104.942</td><td style="text-align: right">55.744</td><td style="text-align: right">3.120</td></tr><tr><td style="text-align: right">August-01</td><td style="text-align: right">99.827</td><td style="text-align: right">47.916</td><td style="text-align: right">2.980</td></tr><tr><td style="text-align: right">September-01</td><td style="text-align: right">91.607</td><td style="text-align: right">49.438</td><td style="text-align: right">1.900</td></tr><tr><td style="text-align: right">October-01</td><td style="text-align: right">107.937</td><td style="text-align: right">51.336</td><td style="text-align: right">1.750</td></tr><tr><td style="text-align: right">November-01</td><td style="text-align: right">115.590</td><td style="text-align: right">55.081</td><td style="text-align: right">1.800</td></tr></table><pre><code class="language-julia hljs">stock_data = [
-    93.043 51.826 1.063;
-    84.585 52.823 0.938;
-    111.453 56.477 1.000;
-    99.525 49.805 0.938;
-    95.819 50.287 1.438;
-    114.708 51.521 1.700;
-    111.515 51.531 2.540;
-    113.211 48.664 2.390;
-    104.942 55.744 3.120;
-    99.827 47.916 2.980;
-    91.607 49.438 1.900;
-    107.937 51.336 1.750;
-    115.590 55.081 1.800;
+    93.043 51.826 1.063
+    84.585 52.823 0.938
+    111.453 56.477 1.000
+    99.525 49.805 0.938
+    95.819 50.287 1.438
+    114.708 51.521 1.700
+    111.515 51.531 2.540
+    113.211 48.664 2.390
+    104.942 55.744 3.120
+    99.827 47.916 2.980
+    91.607 49.438 1.900
+    107.937 51.336 1.750
+    115.590 55.081 1.800
 ]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">13×3 Array{Float64,2}:
   93.043  51.826  1.063
   84.585  52.823  0.938
@@ -39,7 +39,8 @@ x \geq 0
  107.937  51.336  1.75 
  115.59   55.081  1.8  </code></pre><p>Calculating stock returns</p><pre><code class="language-julia hljs">stock_returns = Array{Float64}(undef, 12, 3)
 for i in 1:12
-    stock_returns[i, :] = (stock_data[i + 1, :] .- stock_data[i, :]) ./ stock_data[i, :]
+    stock_returns[i, :] =
+        (stock_data[i+1, :] .- stock_data[i, :]) ./ stock_data[i, :]
 end
 stock_returns</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">12×3 Array{Float64,2}:
  -0.0909042   0.0192374    -0.117592 
@@ -62,10 +63,10 @@ set_silent(portfolio)
 @variable(portfolio, x[1:3] &gt;= 0)
 @objective(portfolio, Min, x&#39; * Q * x)
 @constraint(portfolio, sum(x) &lt;= 1000)
-@constraint(portfolio, sum(r[i] * x[i] for i = 1:3) &gt;= 50)
+@constraint(portfolio, sum(r[i] * x[i] for i in 1:3) &gt;= 50)
 optimize!(portfolio)
 
 objective_value(portfolio)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">22634.417849884154</code></pre><pre><code class="language-julia hljs">value.(x)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">3-element Array{Float64,1}:
  497.04552984986384
    0.0             
- 502.9544801594811 </code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Quadratic programs/portfolio.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../Nonlinear programs/space_shuttle_reentry_trajectory/">« Space Shuttle Reentry Trajectory</a><a class="docs-footer-nextpage" href="../qcp/">Quadratically constrained programs »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 05:08">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ 502.9544801594811 </code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Quadratic programs/portfolio.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../Nonlinear programs/space_shuttle_reentry_trajectory/">« Space Shuttle Reentry Trajectory</a><a class="docs-footer-nextpage" href="../qcp/">Quadratically constrained programs »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 06:52">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

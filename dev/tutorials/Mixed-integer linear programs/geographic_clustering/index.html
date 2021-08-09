@@ -7,11 +7,95 @@
 import DataFrames
 import GLPK
 import LinearAlgebra</code></pre><p>For this example, we&#39;ll use the 20 most populous cities in the United States.</p><pre><code class="language-julia hljs">cities = DataFrames.DataFrame(
-    city = [&quot;New York, NY&quot;, &quot;Los Angeles, CA&quot;, &quot;Chicago, IL&quot;, &quot;Houston, TX&quot;, &quot;Philadelphia, PA&quot;, &quot;Phoenix, AZ&quot;, &quot;San Antonio, TX&quot;, &quot;San Diego, CA&quot;, &quot;Dallas, TX&quot;, &quot;San Jose, CA&quot;, &quot;Austin, TX&quot;, &quot;Indianapolis, IN&quot;, &quot;Jacksonville, FL&quot;, &quot;San Francisco, CA&quot;, &quot;Columbus, OH&quot;, &quot;Charlotte, NC&quot;, &quot;Fort Worth, TX&quot;, &quot;Detroit, MI&quot;, &quot;El Paso, TX&quot;, &quot;Memphis, TN&quot;],
-    population = [8.405,3.884,2.718,2.195,1.553,1.513,1.409,1.355,1.257,0.998,0.885,0.843,0.842,0.837,0.822,0.792,0.792,0.688,0.674,0.653],
-    lat = [40.7127,34.0522,41.8781,29.7604,39.9525,33.4483,29.4241,32.7157,32.7766,37.3382,30.2671,39.7684,30.3321,37.7749,39.9611,35.2270,32.7554,42.3314,31.7775,35.1495],
-    lon = [-74.0059,-118.2436,-87.6297,-95.3698,-75.1652,-112.0740,-98.4936,-117.1610,-96.7969,-121.8863,-97.7430,-86.1580,-81.6556,-122.4194,-82.9987,-80.8431,-97.3307,-83.0457,-106.4424,-90.0489],
-)</code></pre><table class="data-frame"><thead><tr><th></th><th>city</th><th>population</th><th>lat</th><th>lon</th></tr><tr><th></th><th>String</th><th>Float64</th><th>Float64</th><th>Float64</th></tr></thead><tbody><p>20 rows × 4 columns</p><tr><th>1</th><td>New York, NY</td><td>8.405</td><td>40.7127</td><td>-74.0059</td></tr><tr><th>2</th><td>Los Angeles, CA</td><td>3.884</td><td>34.0522</td><td>-118.244</td></tr><tr><th>3</th><td>Chicago, IL</td><td>2.718</td><td>41.8781</td><td>-87.6297</td></tr><tr><th>4</th><td>Houston, TX</td><td>2.195</td><td>29.7604</td><td>-95.3698</td></tr><tr><th>5</th><td>Philadelphia, PA</td><td>1.553</td><td>39.9525</td><td>-75.1652</td></tr><tr><th>6</th><td>Phoenix, AZ</td><td>1.513</td><td>33.4483</td><td>-112.074</td></tr><tr><th>7</th><td>San Antonio, TX</td><td>1.409</td><td>29.4241</td><td>-98.4936</td></tr><tr><th>8</th><td>San Diego, CA</td><td>1.355</td><td>32.7157</td><td>-117.161</td></tr><tr><th>9</th><td>Dallas, TX</td><td>1.257</td><td>32.7766</td><td>-96.7969</td></tr><tr><th>10</th><td>San Jose, CA</td><td>0.998</td><td>37.3382</td><td>-121.886</td></tr><tr><th>11</th><td>Austin, TX</td><td>0.885</td><td>30.2671</td><td>-97.743</td></tr><tr><th>12</th><td>Indianapolis, IN</td><td>0.843</td><td>39.7684</td><td>-86.158</td></tr><tr><th>13</th><td>Jacksonville, FL</td><td>0.842</td><td>30.3321</td><td>-81.6556</td></tr><tr><th>14</th><td>San Francisco, CA</td><td>0.837</td><td>37.7749</td><td>-122.419</td></tr><tr><th>15</th><td>Columbus, OH</td><td>0.822</td><td>39.9611</td><td>-82.9987</td></tr><tr><th>16</th><td>Charlotte, NC</td><td>0.792</td><td>35.227</td><td>-80.8431</td></tr><tr><th>17</th><td>Fort Worth, TX</td><td>0.792</td><td>32.7554</td><td>-97.3307</td></tr><tr><th>18</th><td>Detroit, MI</td><td>0.688</td><td>42.3314</td><td>-83.0457</td></tr><tr><th>19</th><td>El Paso, TX</td><td>0.674</td><td>31.7775</td><td>-106.442</td></tr><tr><th>20</th><td>Memphis, TN</td><td>0.653</td><td>35.1495</td><td>-90.0489</td></tr></tbody></table><h3 id="Model-Specifics"><a class="docs-heading-anchor" href="#Model-Specifics">Model Specifics</a><a id="Model-Specifics-1"></a><a class="docs-heading-anchor-permalink" href="#Model-Specifics" title="Permalink"></a></h3><p>We will cluster these 20 cities into 3 different groups and we will assume that the ideal or target population <span>$P$</span> for a group is simply the total population of the 20 cities divided by 3:</p><pre><code class="language-julia hljs">n = size(cities,1)
+    city = [
+        &quot;New York, NY&quot;,
+        &quot;Los Angeles, CA&quot;,
+        &quot;Chicago, IL&quot;,
+        &quot;Houston, TX&quot;,
+        &quot;Philadelphia, PA&quot;,
+        &quot;Phoenix, AZ&quot;,
+        &quot;San Antonio, TX&quot;,
+        &quot;San Diego, CA&quot;,
+        &quot;Dallas, TX&quot;,
+        &quot;San Jose, CA&quot;,
+        &quot;Austin, TX&quot;,
+        &quot;Indianapolis, IN&quot;,
+        &quot;Jacksonville, FL&quot;,
+        &quot;San Francisco, CA&quot;,
+        &quot;Columbus, OH&quot;,
+        &quot;Charlotte, NC&quot;,
+        &quot;Fort Worth, TX&quot;,
+        &quot;Detroit, MI&quot;,
+        &quot;El Paso, TX&quot;,
+        &quot;Memphis, TN&quot;,
+    ],
+    population = [
+        8.405,
+        3.884,
+        2.718,
+        2.195,
+        1.553,
+        1.513,
+        1.409,
+        1.355,
+        1.257,
+        0.998,
+        0.885,
+        0.843,
+        0.842,
+        0.837,
+        0.822,
+        0.792,
+        0.792,
+        0.688,
+        0.674,
+        0.653,
+    ],
+    lat = [
+        40.7127,
+        34.0522,
+        41.8781,
+        29.7604,
+        39.9525,
+        33.4483,
+        29.4241,
+        32.7157,
+        32.7766,
+        37.3382,
+        30.2671,
+        39.7684,
+        30.3321,
+        37.7749,
+        39.9611,
+        35.2270,
+        32.7554,
+        42.3314,
+        31.7775,
+        35.1495,
+    ],
+    lon = [
+        -74.0059,
+        -118.2436,
+        -87.6297,
+        -95.3698,
+        -75.1652,
+        -112.0740,
+        -98.4936,
+        -117.1610,
+        -96.7969,
+        -121.8863,
+        -97.7430,
+        -86.1580,
+        -81.6556,
+        -122.4194,
+        -82.9987,
+        -80.8431,
+        -97.3307,
+        -83.0457,
+        -106.4424,
+        -90.0489,
+    ],
+)</code></pre><table class="data-frame"><thead><tr><th></th><th>city</th><th>population</th><th>lat</th><th>lon</th></tr><tr><th></th><th>String</th><th>Float64</th><th>Float64</th><th>Float64</th></tr></thead><tbody><p>20 rows × 4 columns</p><tr><th>1</th><td>New York, NY</td><td>8.405</td><td>40.7127</td><td>-74.0059</td></tr><tr><th>2</th><td>Los Angeles, CA</td><td>3.884</td><td>34.0522</td><td>-118.244</td></tr><tr><th>3</th><td>Chicago, IL</td><td>2.718</td><td>41.8781</td><td>-87.6297</td></tr><tr><th>4</th><td>Houston, TX</td><td>2.195</td><td>29.7604</td><td>-95.3698</td></tr><tr><th>5</th><td>Philadelphia, PA</td><td>1.553</td><td>39.9525</td><td>-75.1652</td></tr><tr><th>6</th><td>Phoenix, AZ</td><td>1.513</td><td>33.4483</td><td>-112.074</td></tr><tr><th>7</th><td>San Antonio, TX</td><td>1.409</td><td>29.4241</td><td>-98.4936</td></tr><tr><th>8</th><td>San Diego, CA</td><td>1.355</td><td>32.7157</td><td>-117.161</td></tr><tr><th>9</th><td>Dallas, TX</td><td>1.257</td><td>32.7766</td><td>-96.7969</td></tr><tr><th>10</th><td>San Jose, CA</td><td>0.998</td><td>37.3382</td><td>-121.886</td></tr><tr><th>11</th><td>Austin, TX</td><td>0.885</td><td>30.2671</td><td>-97.743</td></tr><tr><th>12</th><td>Indianapolis, IN</td><td>0.843</td><td>39.7684</td><td>-86.158</td></tr><tr><th>13</th><td>Jacksonville, FL</td><td>0.842</td><td>30.3321</td><td>-81.6556</td></tr><tr><th>14</th><td>San Francisco, CA</td><td>0.837</td><td>37.7749</td><td>-122.419</td></tr><tr><th>15</th><td>Columbus, OH</td><td>0.822</td><td>39.9611</td><td>-82.9987</td></tr><tr><th>16</th><td>Charlotte, NC</td><td>0.792</td><td>35.227</td><td>-80.8431</td></tr><tr><th>17</th><td>Fort Worth, TX</td><td>0.792</td><td>32.7554</td><td>-97.3307</td></tr><tr><th>18</th><td>Detroit, MI</td><td>0.688</td><td>42.3314</td><td>-83.0457</td></tr><tr><th>19</th><td>El Paso, TX</td><td>0.674</td><td>31.7775</td><td>-106.442</td></tr><tr><th>20</th><td>Memphis, TN</td><td>0.653</td><td>35.1495</td><td>-90.0489</td></tr></tbody></table><h3 id="Model-Specifics"><a class="docs-heading-anchor" href="#Model-Specifics">Model Specifics</a><a id="Model-Specifics-1"></a><a class="docs-heading-anchor-permalink" href="#Model-Specifics" title="Permalink"></a></h3><p>We will cluster these 20 cities into 3 different groups and we will assume that the ideal or target population <span>$P$</span> for a group is simply the total population of the 20 cities divided by 3:</p><pre><code class="language-julia hljs">n = size(cities, 1)
 k = 3
 P = sum(cities.population) / k</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">11.038333333333334</code></pre><h3 id="Obtaining-the-distances-between-each-city"><a class="docs-heading-anchor" href="#Obtaining-the-distances-between-each-city">Obtaining the distances between each city</a><a id="Obtaining-the-distances-between-each-city-1"></a><a class="docs-heading-anchor-permalink" href="#Obtaining-the-distances-between-each-city" title="Permalink"></a></h3><p>Let&#39;s compute the pairwise Haversine distance between each of the cities in our data set and store the result in a variable we&#39;ll call <code>dm</code>:</p><pre><code class="language-julia hljs">&quot;&quot;&quot;
     haversine(lat1, long1, lat2, long2, r = 6372.8)
@@ -30,7 +114,7 @@ function haversine(lat1, long1, lat2, long2, r = 6372.8)
     return round(Int, d)
 end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Main.haversine</code></pre><p>Our distance matrix is symmetric so we&#39;ll convert it to a <code>LowerTriangular</code> matrix so that we can better interpret the objective value of our model:</p><pre><code class="language-julia hljs">dm = LinearAlgebra.LowerTriangular([
     haversine(cities.lat[i], cities.lon[i], cities.lat[j], cities.lon[j])
-    for i = 1:n, j = 1:n
+    for i in 1:n, j in 1:n
 ])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">20×20 LinearAlgebra.LowerTriangular{Int64,Array{Int64,2}}:
     0     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅  ⋅
  3937     0     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅     ⋅  ⋅
@@ -114,9 +198,9 @@ set_silent(model)</code></pre><pre class="documenter-example-output"><code class
   [9, 8  ]  =  z[9,8]
   [9, 9  ]  =  z[9,9]</code></pre><pre><code class="language-julia hljs">for k in 1:k, i in 1:n, j in 1:i
     @constraint(model, z[i, j] &gt;= x[i, k] + x[j, k] - 1)
-end</code></pre><p>We can now add an objective to our model which will simply be to minimize the dot product of <span>$z$</span> and our distance matrix, <code>dm</code>.</p><pre><code class="language-julia hljs">@objective(model, Min, sum(dm[i, j] * z[i, j] for i = 1:n, j = 1:i))</code></pre><p class="math-container">\[ 3937 z_{2,1} + 1145 z_{3,1} + 2805 z_{3,2} + 2282 z_{4,1} + 2207 z_{4,2} + 1516 z_{4,3} + 130 z_{5,1} + 3845 z_{5,2} + 1068 z_{5,3} + 2157 z_{5,4} + 3445 z_{6,1} + 574 z_{6,2} + 2337 z_{6,3} + 1633 z_{6,4} + 3345 z_{6,5} + 2546 z_{7,1} + 1934 z_{7,2} + 1695 z_{7,3} + 304 z_{7,4} + 2423 z_{7,5} + 1363 z_{7,6} + 3908 z_{8,1} + 179 z_{8,2} + 2787 z_{8,3} + 2094 z_{8,4} + 3812 z_{8,5} + 481 z_{8,6} + 1813 z_{8,7} + 2206 z_{9,1} + 1993 z_{9,2} + 1295 z_{9,3} + 362 z_{9,4} + 2089 z_{9,5} + 1424 z_{9,6} + 406 z_{9,7} + 1902 z_{9,8} + 4103 z_{10,1} + 492 z_{10,2} + 2958 z_{10,3} + 2588 z_{10,4} + 4023 z_{10,5} + 989 z_{10,6} + 2336 z_{10,7} + 670 z_{10,8} + 2333 z_{10,9} + 2432 z_{11,1} + 1972 z_{11,2} + 1577 z_{11,3} + 235 z_{11,4} + 2310 z_{11,5} + 1398 z_{11,6} + 118 z_{11,7} + 1859 z_{11,8} + 293 z_{11,9} + 2358 z_{11,10} + 1036 z_{12,1} + 2907 z_{12,2} + 265 z_{12,3} + 1394 z_{12,4} + 938 z_{12,5} + 2409 z_{12,6} + 1609 z_{12,7} + 2874 z_{12,8} + 1229 z_{12,9} + 3099 z_{12,10} + 1491 z_{12,11} + 1345 z_{13,1} + 3450 z_{13,2} + 1391 z_{13,3} + 1321 z_{13,4} + 1221 z_{13,5} + 2883 z_{13,6} + 1626 z_{13,7} + 3361 z_{13,8} + 1459 z_{13,9} + 3768 z_{13,10} + 1544 z_{13,11} + 1126 z_{13,12} + 4130 z_{14,1} + 559 z_{14,2} + 2986 z_{14,3} + 2644 z_{14,4} + 4052 z_{14,5} + 1051 z_{14,6} + 2394 z_{14,7} + 738 z_{14,8} + 2384 z_{14,9} + 68 z_{14,10} + 2414 z_{14,11} + 3131 z_{14,12} + 3815 z_{14,13} + 767 z_{15,1} + 3177 z_{15,2} + 444 z_{15,3} + 1598 z_{15,4} + 668 z_{15,5} + 2679 z_{15,6} + 1834 z_{15,7} + 3144 z_{15,8} + 1469 z_{15,9} + 3364 z_{15,10} + 1717 z_{15,11} + 271 z_{15,12} + 1078 z_{15,13} + 3395 z_{15,14} + 855 z_{16,1} + 3405 z_{16,2} + 946 z_{16,3} + 1490 z_{16,4} + 725 z_{16,5} + 2863 z_{16,6} + 1777 z_{16,7} + 3343 z_{16,8} + 1494 z_{16,9} + 3659 z_{16,10} + 1672 z_{16,11} + 689 z_{16,12} + 550 z_{16,13} + 3698 z_{16,14} + 560 z_{16,15} + 2251 z_{17,1} + 1944 z_{17,2} + 1327 z_{17,3} + 382 z_{17,4} + 2134 z_{17,5} + 1375 z_{17,6} + 387 z_{17,7} + 1853 z_{17,8} + 50 z_{17,9} + 2286 z_{17,10} + 280 z_{17,11} + 1268 z_{17,12} + 1509 z_{17,13} + 2338 z_{17,14} + 1511 z_{17,15} + 1543 z_{17,16} + 774 z_{18,1} + 3186 z_{18,2} + 382 z_{18,3} + 1780 z_{18,4} + 711 z_{18,5} + 2716 z_{18,6} + 1994 z_{18,7} + 3169 z_{18,8} + 1609 z_{18,9} + 3334 z_{18,10} + 1875 z_{18,11} + 386 z_{18,12} + 1340 z_{18,13} + 3360 z_{18,14} + 264 z_{18,15} + 813 z_{18,16} + 1646 z_{18,17} + 3054 z_{19,1} + 1130 z_{19,2} + 2010 z_{19,3} + 1081 z_{19,4} + 2945 z_{19,5} + 559 z_{19,6} + 804 z_{19,7} + 1013 z_{19,8} + 914 z_{19,9} + 1541 z_{19,10} + 846 z_{19,11} + 2028 z_{19,12} + 2362 z_{19,13} + 1602 z_{19,14} + 2292 z_{19,15} + 2398 z_{19,16} + 864 z_{19,17} + 2374 z_{19,18} + 1534 z_{20,1} + 2576 z_{20,2} + 777 z_{20,3} + 780 z_{20,4} + 1415 z_{20,5} + 2028 z_{20,6} + 1017 z_{20,7} + 2509 z_{20,8} + 676 z_{20,9} + 2853 z_{20,10} + 901 z_{20,11} + 618 z_{20,12} + 950 z_{20,13} + 2896 z_{20,14} + 820 z_{20,15} + 837 z_{20,16} + 722 z_{20,17} + 1003 z_{20,18} + 1565 z_{20,19} \]</p><p>We can then call <code>optimize!</code> and review the results.</p><pre><code class="language-julia hljs">optimize!(model)</code></pre><h3 id="Reviewing-the-Results"><a class="docs-heading-anchor" href="#Reviewing-the-Results">Reviewing the Results</a><a id="Reviewing-the-Results-1"></a><a class="docs-heading-anchor-permalink" href="#Reviewing-the-Results" title="Permalink"></a></h3><p>Now that we have results, we can add a column to our <code>cities</code> DataFrame for the group and then loop through our <span>$x$</span> variable to assign each city to its group. Once we have that, we can look at the total population for each group and also look at the cities in each group to verify that they are grouped by geographic proximity.</p><pre><code class="language-julia hljs">cities.group = zeros(n)
+end</code></pre><p>We can now add an objective to our model which will simply be to minimize the dot product of <span>$z$</span> and our distance matrix, <code>dm</code>.</p><pre><code class="language-julia hljs">@objective(model, Min, sum(dm[i, j] * z[i, j] for i in 1:n, j in 1:i))</code></pre><p class="math-container">\[ 3937 z_{2,1} + 1145 z_{3,1} + 2805 z_{3,2} + 2282 z_{4,1} + 2207 z_{4,2} + 1516 z_{4,3} + 130 z_{5,1} + 3845 z_{5,2} + 1068 z_{5,3} + 2157 z_{5,4} + 3445 z_{6,1} + 574 z_{6,2} + 2337 z_{6,3} + 1633 z_{6,4} + 3345 z_{6,5} + 2546 z_{7,1} + 1934 z_{7,2} + 1695 z_{7,3} + 304 z_{7,4} + 2423 z_{7,5} + 1363 z_{7,6} + 3908 z_{8,1} + 179 z_{8,2} + 2787 z_{8,3} + 2094 z_{8,4} + 3812 z_{8,5} + 481 z_{8,6} + 1813 z_{8,7} + 2206 z_{9,1} + 1993 z_{9,2} + 1295 z_{9,3} + 362 z_{9,4} + 2089 z_{9,5} + 1424 z_{9,6} + 406 z_{9,7} + 1902 z_{9,8} + 4103 z_{10,1} + 492 z_{10,2} + 2958 z_{10,3} + 2588 z_{10,4} + 4023 z_{10,5} + 989 z_{10,6} + 2336 z_{10,7} + 670 z_{10,8} + 2333 z_{10,9} + 2432 z_{11,1} + 1972 z_{11,2} + 1577 z_{11,3} + 235 z_{11,4} + 2310 z_{11,5} + 1398 z_{11,6} + 118 z_{11,7} + 1859 z_{11,8} + 293 z_{11,9} + 2358 z_{11,10} + 1036 z_{12,1} + 2907 z_{12,2} + 265 z_{12,3} + 1394 z_{12,4} + 938 z_{12,5} + 2409 z_{12,6} + 1609 z_{12,7} + 2874 z_{12,8} + 1229 z_{12,9} + 3099 z_{12,10} + 1491 z_{12,11} + 1345 z_{13,1} + 3450 z_{13,2} + 1391 z_{13,3} + 1321 z_{13,4} + 1221 z_{13,5} + 2883 z_{13,6} + 1626 z_{13,7} + 3361 z_{13,8} + 1459 z_{13,9} + 3768 z_{13,10} + 1544 z_{13,11} + 1126 z_{13,12} + 4130 z_{14,1} + 559 z_{14,2} + 2986 z_{14,3} + 2644 z_{14,4} + 4052 z_{14,5} + 1051 z_{14,6} + 2394 z_{14,7} + 738 z_{14,8} + 2384 z_{14,9} + 68 z_{14,10} + 2414 z_{14,11} + 3131 z_{14,12} + 3815 z_{14,13} + 767 z_{15,1} + 3177 z_{15,2} + 444 z_{15,3} + 1598 z_{15,4} + 668 z_{15,5} + 2679 z_{15,6} + 1834 z_{15,7} + 3144 z_{15,8} + 1469 z_{15,9} + 3364 z_{15,10} + 1717 z_{15,11} + 271 z_{15,12} + 1078 z_{15,13} + 3395 z_{15,14} + 855 z_{16,1} + 3405 z_{16,2} + 946 z_{16,3} + 1490 z_{16,4} + 725 z_{16,5} + 2863 z_{16,6} + 1777 z_{16,7} + 3343 z_{16,8} + 1494 z_{16,9} + 3659 z_{16,10} + 1672 z_{16,11} + 689 z_{16,12} + 550 z_{16,13} + 3698 z_{16,14} + 560 z_{16,15} + 2251 z_{17,1} + 1944 z_{17,2} + 1327 z_{17,3} + 382 z_{17,4} + 2134 z_{17,5} + 1375 z_{17,6} + 387 z_{17,7} + 1853 z_{17,8} + 50 z_{17,9} + 2286 z_{17,10} + 280 z_{17,11} + 1268 z_{17,12} + 1509 z_{17,13} + 2338 z_{17,14} + 1511 z_{17,15} + 1543 z_{17,16} + 774 z_{18,1} + 3186 z_{18,2} + 382 z_{18,3} + 1780 z_{18,4} + 711 z_{18,5} + 2716 z_{18,6} + 1994 z_{18,7} + 3169 z_{18,8} + 1609 z_{18,9} + 3334 z_{18,10} + 1875 z_{18,11} + 386 z_{18,12} + 1340 z_{18,13} + 3360 z_{18,14} + 264 z_{18,15} + 813 z_{18,16} + 1646 z_{18,17} + 3054 z_{19,1} + 1130 z_{19,2} + 2010 z_{19,3} + 1081 z_{19,4} + 2945 z_{19,5} + 559 z_{19,6} + 804 z_{19,7} + 1013 z_{19,8} + 914 z_{19,9} + 1541 z_{19,10} + 846 z_{19,11} + 2028 z_{19,12} + 2362 z_{19,13} + 1602 z_{19,14} + 2292 z_{19,15} + 2398 z_{19,16} + 864 z_{19,17} + 2374 z_{19,18} + 1534 z_{20,1} + 2576 z_{20,2} + 777 z_{20,3} + 780 z_{20,4} + 1415 z_{20,5} + 2028 z_{20,6} + 1017 z_{20,7} + 2509 z_{20,8} + 676 z_{20,9} + 2853 z_{20,10} + 901 z_{20,11} + 618 z_{20,12} + 950 z_{20,13} + 2896 z_{20,14} + 820 z_{20,15} + 837 z_{20,16} + 722 z_{20,17} + 1003 z_{20,18} + 1565 z_{20,19} \]</p><p>We can then call <code>optimize!</code> and review the results.</p><pre><code class="language-julia hljs">optimize!(model)</code></pre><h3 id="Reviewing-the-Results"><a class="docs-heading-anchor" href="#Reviewing-the-Results">Reviewing the Results</a><a id="Reviewing-the-Results-1"></a><a class="docs-heading-anchor-permalink" href="#Reviewing-the-Results" title="Permalink"></a></h3><p>Now that we have results, we can add a column to our <code>cities</code> DataFrame for the group and then loop through our <span>$x$</span> variable to assign each city to its group. Once we have that, we can look at the total population for each group and also look at the cities in each group to verify that they are grouped by geographic proximity.</p><pre><code class="language-julia hljs">cities.group = zeros(n)
 
-for i = 1:n, j = 1:k
+for i in 1:n, j in 1:k
     if round(Int, value(x[i, j])) == 1
         cities.group[i] = j
     end
@@ -166,4 +250,4 @@ group = 7×5 SubDataFrame
    6 │ Fort Worth, TX        0.792  32.7554  -97.3307      3.0
    7 │ Memphis, TN           0.653  35.1495  -90.0489      3.0
 
-sum(group.population) = 9.909</code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Mixed-integer linear programs/geographic_clustering.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../finance/">« Finance</a><a class="docs-footer-nextpage" href="../knapsack/">The knapsack problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 05:08">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+sum(group.population) = 9.909</code></pre><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Mixed-integer linear programs/geographic_clustering.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../finance/">« Finance</a><a class="docs-footer-nextpage" href="../knapsack/">The knapsack problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 06:52">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

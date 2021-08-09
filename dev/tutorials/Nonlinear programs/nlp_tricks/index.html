@@ -22,8 +22,8 @@ register(model, :foo_2, 2, foo_2; autodiff = true)
 @NLconstraint(model, foo_2(x[1], x[2]) &lt;= 2)
 function_calls = 0
 optimize!(model)
-Test.@test objective_value(model) ≈ √3 atol=1e-4
-Test.@test value.(x) ≈ [1.0, 1.0] atol=1e-4
+Test.@test objective_value(model) ≈ √3 atol = 1e-4
+Test.@test value.(x) ≈ [1.0, 1.0] atol = 1e-4
 println(&quot;Naive approach: function calls = $(function_calls)&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Naive approach: function calls = 40</code></pre><p>An alternative approach is to use <em>memoization</em>, which uses a cache to store the result of function evaluations. We can write a memoization function as follows:</p><pre><code class="language-julia hljs">&quot;&quot;&quot;
     memoize(foo::Function, n_outputs::Int)
 
@@ -37,7 +37,7 @@ work when `x` is a `Float64` and a `ForwardDiff.Dual`.
 function memoize(foo::Function, n_outputs::Int)
     last_x, last_f = nothing, nothing
     last_dx, last_dfdx = nothing, nothing
-    function foo_i(i, x::T...) where {T &lt;: Real}
+    function foo_i(i, x::T...) where {T&lt;:Real}
         if T == Float64
             if x != last_x
                 last_x, last_f = x, foo(x...)
@@ -50,7 +50,7 @@ function memoize(foo::Function, n_outputs::Int)
             return last_dfdx[i]::T
         end
     end
-    return [(x...) -&gt; foo_i(i, x...) for i = 1:n_outputs]
+    return [(x...) -&gt; foo_i(i, x...) for i in 1:n_outputs]
 end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Main.memoize</code></pre><p>Let&#39;s see how it works. First, construct the memoized versions of <code>foo</code>:</p><pre><code class="language-julia hljs">memoized_foo = memoize(foo, 2)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2-element Array{getfield(Main, Symbol(&quot;##4#7&quot;)){Int64,getfield(Main, Symbol(&quot;#foo_i#5&quot;)){typeof(Main.foo)}},1}:
  getfield(Main, Symbol(&quot;##4#7&quot;)){Int64,getfield(Main, Symbol(&quot;#foo_i#5&quot;)){typeof(Main.foo)}}(1, getfield(Main, Symbol(&quot;#foo_i#5&quot;)){typeof(Main.foo)}(Main.foo, Core.Box(nothing), Core.Box(nothing), Core.Box(nothing), Core.Box(nothing)))
  getfield(Main, Symbol(&quot;##4#7&quot;)){Int64,getfield(Main, Symbol(&quot;#foo_i#5&quot;)){typeof(Main.foo)}}(2, getfield(Main, Symbol(&quot;#foo_i#5&quot;)){typeof(Main.foo)}(Main.foo, Core.Box(nothing), Core.Box(nothing), Core.Box(nothing), Core.Box(nothing)))</code></pre><p>Now try evaluating the first element of <code>memoized_foo</code>.</p><pre><code class="language-julia hljs">function_calls = 0
@@ -65,6 +65,6 @@ register(model, :foo_2, 2, memoized_foo[2]; autodiff = true)
 @NLconstraint(model, foo_2(x[1], x[2]) &lt;= 2)
 function_calls = 0
 optimize!(model)
-Test.@test objective_value(model) ≈ √3 atol=1e-4
-Test.@test value.(x) ≈ [1.0, 1.0] atol=1e-4
-println(&quot;Memoized approach: function_calls = $(function_calls)&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Memoized approach: function_calls = 20</code></pre><p>Compared to the naive approach, the memoized approach requires half as many function evaluations!</p><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Nonlinear programs/nlp_tricks.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../mle/">« Maximum likelihood estimation</a><a class="docs-footer-nextpage" href="../rocket_control/">Rocket Control »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 05:08">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+Test.@test objective_value(model) ≈ √3 atol = 1e-4
+Test.@test value.(x) ≈ [1.0, 1.0] atol = 1e-4
+println(&quot;Memoized approach: function_calls = $(function_calls)&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Memoized approach: function_calls = 20</code></pre><p>Compared to the naive approach, the memoized approach requires half as many function evaluations!</p><p><a href="https://github.com/jump-dev/JuMP.jl/blob/master/docs/src/tutorials/Nonlinear programs/nlp_tricks.jl">View this file on Github</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../mle/">« Maximum likelihood estimation</a><a class="docs-footer-nextpage" href="../rocket_control/">Rocket Control »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.5 on <span class="colophon-date" title="Monday 9 August 2021 06:52">Monday 9 August 2021</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
